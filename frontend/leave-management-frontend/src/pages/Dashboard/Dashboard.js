@@ -1,14 +1,17 @@
 // src/pages/Dashboard/Dashboard.js
 import React, { useEffect, useState } from "react";
-import { getLeaveBalancesByUserId } from "../../api/leaveBalanceApi";
 import { getNotificationsByUserId } from "../../api/notificationApi";
+import { getAllLeaveRequests, getLeaveRequestsByEmployee } from "../../api/leaveRequestApi";
 import LeaveCalendar from "../../components/dashboard/LeaveCalendar";
 import { ROLE_ADMIN, ROLE_MANAGER, ROLE_EMPLOYEE } from "../../utils/constants";
 import Layout from "../../components/common/Layout";
+import { parseISO, differenceInDays } from "date-fns"; // ✅ for date calculation
+
 
 const Dashboard = () => {
-  const [leaveBalances, setLeaveBalances] = useState([]);
-  const [notifications, setNotifications] = useState([]);
+  const [, setNotifications] = useState([]);
+  const [pendingApprovals, setPendingApprovals] = useState(0);
+  const [totalLeaves, setTotalLeaves] = useState(0);
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
@@ -16,10 +19,35 @@ const Dashboard = () => {
     .then(res => setNotifications(res.data || [])) // default to empty array
     .catch(err => console.error(err));
 
-  getLeaveBalancesByUserId(user.id)
-    .then(res => setLeaveBalances(res.data || []))
-    .catch(err => console.error(err));
-}, [user.id]);
+  getLeaveRequestsByEmployee(user.id)
+      .then((res) => {
+        const leaves = res.data || [];
+
+        // take only approved leaves
+        const approvedLeaves = leaves.filter(
+          (leave) => leave.status === "APPROVED"
+        );
+
+        // calculate days for each leave request
+        const totalDays = approvedLeaves.reduce((sum, leave) => {
+          const start = parseISO(leave.startDate);
+          const end = parseISO(leave.endDate);
+          return sum + (differenceInDays(end, start) + 1); // +1 because inclusive
+        }, 0);
+
+        setTotalLeaves(totalDays);
+      })
+      .catch((err) => console.error(err));
+
+    if (user.role === ROLE_MANAGER || user.role === ROLE_ADMIN) {
+    getAllLeaveRequests()
+      .then((res) => {
+        const pending = res.data.filter((lr) => lr.status === "PENDING");
+        setPendingApprovals(pending.length);
+      })
+      .catch((err) => console.error(err));
+  }
+}, [user.id, user.role]);
 
 
   return (
@@ -29,25 +57,22 @@ const Dashboard = () => {
       <div className="summary-cards">
         {user.role === ROLE_EMPLOYEE && (
           <div className="card">
-            <h3>Leave Balance</h3>
-            <p>
-              {leaveBalances.reduce((sum, lb) => sum + lb.remainingDays, 0) || 0}{" "}
-              days
-            </p>
+            <h3>Total Leaves Taken</h3>
+            <p>{totalLeaves} days</p>
           </div>
         )}
 
         {(user.role === ROLE_MANAGER || user.role === ROLE_ADMIN) && (
           <div className="card">
             <h3>Pending Approvals</h3>
-            <p>5</p>
+            <p>{pendingApprovals}</p>
           </div>
         )}
 
-        <div className="card">
-          <h3>Notifications</h3>
+        {/* <div className="card"> */}
+          {/* <h3>Notifications</h3>
           <p>{notifications.filter((n) => !n.read).length}</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Quick Links */}
