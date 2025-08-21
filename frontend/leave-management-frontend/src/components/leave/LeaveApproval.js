@@ -60,14 +60,14 @@ const LeaveApproval = () => {
               <td>{leave.startDate}</td>
               <td>{leave.endDate}</td>
               <td>{leave.reason}</td>
-              <td>{leave.status}</td>
+              <td className={`status-text ${leave.status}`}>{leave.status}</td>
               <td>
                 {leave.status === "PENDING" && (
                   <>
-                    <button onClick={() => handleStatusChange(leave.id, "APPROVED")}>
+                    <button onClick={() => handleStatusChange(leave.id, "APPROVED")}className="status-btn approve">
                       Approve
                     </button>
-                    <button onClick={() => handleStatusChange(leave.id, "REJECTED")}>
+                    <button onClick={() => handleStatusChange(leave.id, "REJECTED")}className="status-btn reject">
                       Reject
                     </button>
                   </>

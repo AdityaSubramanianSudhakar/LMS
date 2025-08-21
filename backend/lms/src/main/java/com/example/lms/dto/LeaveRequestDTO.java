@@ -1,25 +1,22 @@
 package com.example.lms.dto;
-
-import java.time.LocalDate;
+import com.example.lms.entity.LeaveRequest;
 
 public class LeaveRequestDTO {
-
     private Long id;
-    private String name;
-    private Long employeeId;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String leaveType;
+    private String startDate;
+    private String endDate;
+    private String status;
     private String reason;
 
-    public LeaveRequestDTO() {}
-
-    public LeaveRequestDTO(Long id, String name, Long employeeId, LocalDate startDate, LocalDate endDate, String reason) {
-        this.id = id;
-        this.name = name;
-        this.employeeId = employeeId;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.reason = reason;
+    // constructor
+    public LeaveRequestDTO(LeaveRequest leave) {
+        this.id = leave.getId(); // assuming employee is not null
+        this.leaveType = leave.getLeaveType();
+        this.startDate = leave.getStartDate().toString();
+        this.endDate = leave.getEndDate().toString();
+        this.status = leave.getStatus();
+        this.reason = leave.getReason();
     }
 
     public Long getId() {
@@ -30,36 +27,36 @@ public class LeaveRequestDTO {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getLeaveType() {
+        return leaveType;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLeaveType(String leaveType) {
+        this.leaveType = leaveType;
     }
 
-    public Long getEmployeeId() {
-        return employeeId;
-    }
-
-    public void setEmployeeId(Long employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public LocalDate getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getReason() {
@@ -69,4 +66,6 @@ public class LeaveRequestDTO {
     public void setReason(String reason) {
         this.reason = reason;
     }
+
+    // getters and setters
 }

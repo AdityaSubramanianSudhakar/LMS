@@ -8,7 +8,7 @@ const Sidebar = ({ user, isOpen }) => {
   if (!user) return null;
 
   // Base link: Dashboard always visible
-  const links = [{ to: "/dashboard", label: "Dashboard" }];
+  const links = [];
 
   // Role-based links
   if (user.role === ROLE_EMPLOYEE) {
@@ -30,7 +30,7 @@ const Sidebar = ({ user, isOpen }) => {
     links.push(
       { to: "/profile", label: "Profile" },
       { to: "/users", label: "Manage Employees" },
-      { to: "/leave-requests", label: "Leave Requests" }
+      { to: "/all-leaves", label: "Leave Requests" }
     );
   }
 

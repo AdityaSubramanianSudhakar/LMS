@@ -2,9 +2,12 @@ package com.example.lms.controller;
 
 import com.example.lms.entity.User;
 import com.example.lms.service.UserService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,9 +33,28 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.updateUser(id, user);
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> updates) {
+
+        User user = userService.getUserById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (updates.containsKey("name")) {
+            user.setName(updates.get("name"));
+        }
+        if (updates.containsKey("email")) {
+            user.setEmail(updates.get("email"));
+        }
+        if (updates.containsKey("role")) {
+            user.setRole(updates.get("role"));
+        }
+
+        // Do NOT update password here
+        User updatedUser = userService.saveUser(user);
+        return ResponseEntity.ok(updatedUser);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {

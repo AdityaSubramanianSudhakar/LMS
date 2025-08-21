@@ -1,7 +1,14 @@
 // src/components/common/Header.js
 import React from "react";
+import { useLocation } from "react-router-dom";
 
 const Header = ({ onMenuClick, user }) => {
+  const location = useLocation();
+
+  // hide user + menu on login/register pages
+  const hideHeaderContent =
+    location.pathname === "/login" || location.pathname === "/register";
+
   return (
     <header
       style={{
@@ -20,26 +27,28 @@ const Header = ({ onMenuClick, user }) => {
       }}
     >
       {/* Hamburger Button */}
-      <button
-        onClick={onMenuClick}
-        style={{
-          fontSize: "24px",
-          background: "none",
-          border: "none",
-          color: "white",
-          cursor: "pointer",
-        }}
-      >
-        ☰
-      </button>
+      {!hideHeaderContent && (
+        <button
+          onClick={onMenuClick}
+          style={{
+            fontSize: "24px",
+            background: "none",
+            border: "none",
+            color: "white",
+            cursor: "pointer",
+          }}
+        >
+          ☰
+        </button>
+      )}
 
-      {/* App title or user info */}
+      {/* App title */}
       <h2 style={{ margin: 0, fontSize: "18px" }}>
         Leave Management System
       </h2>
 
       {/* Right side: User */}
-      <span>{user?.name} : {user?.role}</span>
+      {!hideHeaderContent && <span>{user?.name} : {user?.role}</span>}
     </header>
   );
 };

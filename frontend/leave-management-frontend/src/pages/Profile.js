@@ -51,6 +51,7 @@ const Profile = () => {
 
   return (
     <Layout>
+      <div className="profile-container">
       <h2>My Profile</h2>
 
       {!editMode ? (
@@ -84,6 +85,7 @@ const Profile = () => {
           <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
         </form>
       )}
+      </div>
     </Layout>
   );
 };

@@ -2,9 +2,13 @@ package com.example.lms.controller;
 
 import com.example.lms.entity.LeaveRequest;
 import com.example.lms.service.LeaveRequestService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/leaves")
@@ -18,9 +22,23 @@ public class LeaveRequestController {
 
     // Create leave request
     @PostMapping
-    public LeaveRequest createLeaveRequest(@RequestBody LeaveRequest leaveRequest) {
-        return leaveRequestService.createLeaveRequest(leaveRequest);
+    public ResponseEntity<?> createLeaveRequest(@RequestBody LeaveRequest leaveRequest) {
+        try {
+            LeaveRequest createdLeave = leaveRequestService.createLeaveRequest(leaveRequest);
+            return ResponseEntity.ok(createdLeave);
+        } catch (IllegalArgumentException ex) {
+            // Overlapping leave detected
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            // Other unexpected errors
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Something went wrong. Please try again."));
+        }
     }
+
 
     // Get all leave requests
     @GetMapping
@@ -67,6 +85,8 @@ public LeaveRequest updateLeaveStatus(
     leave.setStatus(status.toUpperCase()); // "APPROVED" or "REJECTED"
     return leaveRequestService.saveLeave(leave);
 }
-
+public List<LeaveRequest> getAllLeaves() {
+    return leaveRequestService.getAllLeaves();
+}
 
 }

@@ -11,6 +11,8 @@ import Register from "./pages/Auth/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ApplyLeavePage from "./pages/Leave/ApplyLeavePage";
 import LeaveRequestsPage from "./pages/Leave/LeaveRequestsPage";
+import LeaveRequestDetails from "./components/leave/LeaveRequestDetails";
+import AllLeavesPage from "./pages/Leave/AllLeavesPage";
 import LeaveApproval from "./components/leave/LeaveApproval";
 import UsersPage from "./pages/Users/UsersPage";
 import NotFound from "./pages/NotFound";
@@ -50,6 +52,23 @@ function App() {
               element={
                 <ProtectedRoute>
                   <LeaveRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leavedetails/:leaveId"
+              element={
+                <ProtectedRoute>
+                  <LeaveRequestDetails onClose={() => window.history.back()} />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/all-leaves"
+              element={
+                <ProtectedRoute roles={["ADMIN"]}>
+                  <AllLeavesPage />
                 </ProtectedRoute>
               }
             />

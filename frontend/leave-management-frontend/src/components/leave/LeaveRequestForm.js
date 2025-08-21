@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createLeaveRequest } from "../../api/leaveRequestApi";
 import Layout from "../common/Layout";
 
@@ -9,31 +9,51 @@ const LeaveRequestForm = () => {
     startDate: "",
     endDate: "",
     reason: "",
-    status: "PENDING",
   });
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const leaveTypes = ["Sick", "Vacation", "Personal"]; // hardcoded
+  const leaveTypes = ["Sick", "Vacation", "Personal"];
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+    setSuccess("");
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccess("");
 
-    const payload = { ...form, employeeId: user.id };
-
-    createLeaveRequest(payload)
-      .then(() => {
-        alert("Leave request submitted successfully!");
-        setForm({ leaveType: "", startDate: "", endDate: "", reason: "" });
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Failed to submit leave request");
-      })
-      .finally(() => setLoading(false));
+    try {
+      await createLeaveRequest({ ...form, employeeId: user.id, status: "PENDING" });
+      setSuccess("Leave request submitted successfully.");
+      setForm({ leaveType: "", startDate: "", endDate: "", reason: "" });
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Clear success/error after 3 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
 
   return (
     <Layout>
@@ -41,26 +61,56 @@ const LeaveRequestForm = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Leave Type:</label>
-          <select name="leaveType" value={form.leaveType} onChange={handleChange} required>
+          <select
+            name="leaveType"
+            value={form.leaveType}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select Type</option>
             {leaveTypes.map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
         </div>
+
         <div>
           <label>Start Date:</label>
-          <input type="date" name="startDate" value={form.startDate} onChange={handleChange} required />
+          <input
+            type="date"
+            name="startDate"
+            value={form.startDate}
+            onChange={handleChange}
+            required
+          />
         </div>
+
         <div>
           <label>End Date:</label>
-          <input type="date" name="endDate" value={form.endDate} onChange={handleChange} required />
+          <input
+            type="date"
+            name="endDate"
+            value={form.endDate}
+            onChange={handleChange}
+            required
+          />
         </div>
+
         <div>
           <label>Reason:</label>
-          <textarea name="reason" value={form.reason} onChange={handleChange} required />
+          <textarea
+            name="reason"
+            value={form.reason}
+            onChange={handleChange}
+          />
         </div>
-        <button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit"}</button>
+
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Submitting..." : "Submit"}
+        </button>
       </form>
     </Layout>
   );

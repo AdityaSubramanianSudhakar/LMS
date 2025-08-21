@@ -67,7 +67,7 @@ const Register = () => {
       </form>
       {error && <p className="error">{error}</p>}
       <p>
-        Already have an account? <span onClick={() => navigate("/login")}>Login here</span>
+        Already have an account? <span onClick={() => navigate("/login")}style={{ color: "blue", cursor: "pointer" }}>Login here</span>
       </p>
     </div>
   );

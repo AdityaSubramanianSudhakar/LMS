@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getLeaveBalancesByUserId } from "../../api/leaveBalanceApi";
 import { getNotificationsByUserId } from "../../api/notificationApi";
+import LeaveCalendar from "../../components/dashboard/LeaveCalendar";
 import { ROLE_ADMIN, ROLE_MANAGER, ROLE_EMPLOYEE } from "../../utils/constants";
 import Layout from "../../components/common/Layout";
 
@@ -57,17 +58,26 @@ const Dashboard = () => {
           </button>
         )}
 
-        <button onClick={() => (window.location.href = "/leave-requests")}>
-          {user.role === ROLE_EMPLOYEE
-            ? "My Leave Requests"
-            : "View Leave Requests"}
-        </button>
+        <button
+            onClick={() =>
+              (window.location.href =
+                user.role === ROLE_EMPLOYEE ? "/leave-requests" : "/leave-approvals")
+            }
+          >
+            {user.role === ROLE_EMPLOYEE
+              ? "My Leave Requests"
+              : "View Leave Requests"}
+          </button>
+
 
         {user.role === ROLE_ADMIN && (
           <button onClick={() => (window.location.href = "/users")}>
             Manage Users
           </button>
         )}
+        {user?.role === ROLE_EMPLOYEE && (
+        <LeaveCalendar employeeId={user.id} />
+      )}
       </div>
     </Layout>
   );

@@ -18,8 +18,24 @@ public class LeaveRequestService {
 
     // Create new leave request
     public LeaveRequest createLeaveRequest(LeaveRequest leaveRequest) {
-        return leaveRequestRepository.save(leaveRequest);
+    // Check for overlapping leaves for the same employee
+    List<LeaveRequest> overlaps = leaveRequestRepository.findOverlappingLeaves(
+        leaveRequest.getEmployeeId(),
+        leaveRequest.getStartDate(),
+        leaveRequest.getEndDate()
+    );
+
+    if (!overlaps.isEmpty()) {
+        // Prevent leave creation if overlapping exists
+        throw new IllegalArgumentException(
+            "You already have a leave that overlaps with the selected dates."
+        );
     }
+
+    // Save leave if no overlap
+    return leaveRequestRepository.save(leaveRequest);
+    }
+
 
     // Get all leave requests
     public List<LeaveRequest> getAllLeaveRequests() {
@@ -66,5 +82,10 @@ public class LeaveRequestService {
     public LeaveRequest saveLeave(LeaveRequest leaveRequest) {
     return leaveRequestRepository.save(leaveRequest);
     }
+
+    public List<LeaveRequest> getAllLeaves() {
+    return leaveRequestRepository.findAll(); // or custom query joining employee
+    }
+
 
 }
