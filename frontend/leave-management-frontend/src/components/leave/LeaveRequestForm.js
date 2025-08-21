@@ -24,25 +24,43 @@ const LeaveRequestForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  setSuccess("");
 
-    try {
-      await createLeaveRequest({ ...form, employeeId: user.id, status: "PENDING" });
-      setSuccess("Leave request submitted successfully.");
-      setForm({ leaveType: "", startDate: "", endDate: "", reason: "" });
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+  // Validate: start and end date should not be in the past
+  const today = new Date();
+  const start = new Date(form.startDate);
+  const end = new Date(form.endDate);
+
+  if (start < today.setHours(0,0,0,0) || end < today.setHours(0,0,0,0)) {
+    setError("Cannot apply leave for past dates.");
+    setLoading(false);
+    return;
+  }
+
+  if (end < start) {
+    setError("End date cannot be before start date.");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    await createLeaveRequest({ ...form, employeeId: user.id, status: "PENDING" });
+    setSuccess("Leave request submitted successfully.");
+    setForm({ leaveType: "", startDate: "", endDate: "", reason: "" });
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.error) {
+      setError(err.response.data.error);
+    } else {
+      setError("Something went wrong. Please try again.");
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Clear success/error after 3 seconds
   useEffect(() => {
