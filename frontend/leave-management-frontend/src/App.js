@@ -98,7 +98,7 @@ function App() {
             />
 
             {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* 404 Not Found */}
             <Route path="*" element={<NotFound />} />
